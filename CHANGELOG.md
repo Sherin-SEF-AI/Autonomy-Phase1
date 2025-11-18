@@ -4,6 +4,122 @@ All notable changes to the Autonomous Vehicle Perception System will be document
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.1.0] - 2025-01-18 - Advanced Features Release
+
+### Added
+
+#### 🎥 Recording & Playback System
+- **Multi-Camera Video Recorder** (`recording/video_recorder.py`)
+  - Synchronized multi-camera recording with H.264 encoding
+  - Circular buffer for continuous recording (last N minutes in memory)
+  - Event-triggered clip saving (collision warnings, hard braking)
+  - Configurable pre/post-event buffers (10s before + 10s after events)
+  - Automatic metadata logging (detections, tracking, warnings)
+  - Background event processing thread
+  - Storage management with auto-cleanup
+  - Session-based recording with unique IDs
+
+#### 🚦 Traffic Light Detection
+- **Traffic Light Detector** (`perception/traffic_light_detection.py`)
+  - Color-based detection using HSV segmentation
+  - State classification: Red, Yellow, Green, Off
+  - Confidence scoring for each detection
+  - Configurable detection parameters
+  - Red light violation prevention
+  - ROI-based detection (focuses on upper image region)
+  - Morphological filtering for noise reduction
+
+#### 🌊 Depth Estimation
+- **Monocular Depth Estimator** (`perception/depth_estimation.py`)
+  - Support for MiDaS (Small, V2.1) and DPT Hybrid models
+  - GPU acceleration when available
+  - Fallback to simple depth estimation (no ML required)
+  - Depth-at-point queries for specific coordinates
+  - Depth statistics for bounding boxes (min, max, mean, median)
+  - Colored depth map visualization (multiple colormaps)
+  - Depth overlay on original images
+  - Distance estimation with calibration support
+
+#### 🎨 Semantic Segmentation
+- **Semantic Segmenter** (`perception/semantic_segmentation.py`)
+  - Support for DeepLabV3 and FCN models
+  - 19-class Cityscapes-based segmentation
+  - Classes: road, sidewalk, building, vehicle, person, sky, vegetation, etc.
+  - Colored mask visualization
+  - Drivable area extraction
+  - Class percentage calculation
+  - Obstacle-on-road detection
+  - GPU acceleration support
+
+#### 🌤️ Scene Recognition
+- **Environmental Context Recognizer** (`perception/scene_recognition.py`)
+  - **Weather Classification**: Sunny, Cloudy, Rainy, Foggy, Snowy
+  - **Road Type Detection**: Highway, Urban, Residential, Rural, Parking Lot
+  - **Time of Day**: Day, Night, Dusk, Dawn
+  - **Lighting Conditions**: Bright, Normal, Dim, Dark
+  - Visibility score calculation (0-1)
+  - Temporal smoothing for stable classifications
+  - Feature extraction: brightness, contrast, saturation, edge density
+  - Poor visibility detection
+  - Caution requirement assessment
+
+#### 🛡️ Safety Scoring System
+- **Real-time Safety Scorer** (`safety/safety_scorer.py`)
+  - Overall safety score (0-100) with 5 levels: Excellent, Good, Fair, Poor, Critical
+  - **Component Scores**:
+    - Collision avoidance (35% weight)
+    - Lane keeping (20% weight)
+    - Following distance (20% weight)
+    - Speed appropriateness (15% weight)
+    - Environmental awareness (10% weight)
+  - Event tracking: near misses, hard braking, lane departures, dangerous maneuvers
+  - 2-second rule enforcement for following distance
+  - Weather-adjusted speed recommendations
+  - Traffic density awareness
+  - Score history and trend analysis (improving/stable/worsening)
+  - Event logging with severity and impact scoring
+
+#### 📊 Analytics & Reporting
+- **Trip Analyzer** (`analytics/trip_analyzer.py`)
+  - Comprehensive trip statistics
+  - Detection counts by class
+  - Unique object tracking across trip
+  - Scene type distribution percentages
+  - Weather condition distribution
+  - Safety score averaging and trends
+  - Performance metrics (FPS, processing time)
+  - JSON report generation
+  - Multi-trip summary reports
+  - Top detected classes analysis
+  - Safety trend visualization data
+
+### Features Summary
+
+**Total New Files**: 7 major modules
+- `recording/video_recorder.py` (~550 lines)
+- `perception/traffic_light_detection.py` (~380 lines)
+- `perception/depth_estimation.py` (~470 lines)
+- `perception/semantic_segmentation.py` (~480 lines)
+- `perception/scene_recognition.py` (~510 lines)
+- `safety/safety_scorer.py` (~530 lines)
+- `analytics/trip_analyzer.py` (~450 lines)
+
+**Total New Code**: ~3,370 lines
+
+### Capabilities Added
+
+1. **Recording**: Multi-camera DVR with event-triggered clip saving
+2. **Safety**: Traffic light detection, real-time safety scoring, near-miss detection
+3. **Environment**: Weather/lighting/road type recognition, visibility assessment
+4. **Depth**: 3D scene understanding, distance estimation, drivable area detection
+5. **Segmentation**: Pixel-wise scene classification, obstacle detection
+6. **Analytics**: Trip statistics, safety reports, performance tracking
+
+### Integration Ready
+
+All modules are standalone and ready for integration into the main perception pipeline.
+Optional dependencies (PyTorch, torchvision) allow graceful fallback to simpler methods.
+
 ## [1.0.2] - 2025-01-18
 
 ### Added
