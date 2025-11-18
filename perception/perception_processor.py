@@ -5,6 +5,7 @@ Integrates:
 - Lane detection
 - Object detection
 - Object tracking
+- Sensor fusion
 - Overlay rendering
 """
 
@@ -15,6 +16,7 @@ from typing import Dict, List, Optional
 
 from utils.data_structures import (
     CameraFrame,
+    CameraConfig,
     PerceptionResult,
     DetectedObject,
     TrackedObject,
@@ -26,6 +28,7 @@ from utils.performance_monitor import PerformanceMonitor
 from perception.lane_detection import LaneDetector, LaneDetectionConfig
 from perception.object_detection import ObjectDetector, ObjectDetectionConfig
 from perception.object_tracking import MultiCameraTracker
+from perception.sensor_fusion import SensorFusion, FusionConfig
 from visualization.overlay_renderer import OverlayRenderer
 
 
@@ -50,6 +53,8 @@ class PerceptionProcessor(QThread):
         enable_lane_detection: bool = True,
         enable_object_detection: bool = True,
         enable_tracking: bool = True,
+        enable_sensor_fusion: bool = True,
+        camera_configs: Optional[Dict[int, CameraConfig]] = None,
         parent=None
     ):
         """
@@ -59,6 +64,8 @@ class PerceptionProcessor(QThread):
             enable_lane_detection: Enable lane detection
             enable_object_detection: Enable object detection
             enable_tracking: Enable object tracking
+            enable_sensor_fusion: Enable sensor fusion
+            camera_configs: Camera configurations for sensor fusion
             parent: Parent QObject
         """
         super().__init__(parent)
@@ -66,12 +73,19 @@ class PerceptionProcessor(QThread):
         self.enable_lane_detection = enable_lane_detection
         self.enable_object_detection = enable_object_detection
         self.enable_tracking = enable_tracking
+        self.enable_sensor_fusion = enable_sensor_fusion
 
         # Perception modules
         self.lane_detector = LaneDetector() if enable_lane_detection else None
         self.object_detector = ObjectDetector() if enable_object_detection else None
         self.tracker = MultiCameraTracker(num_cameras=4) if enable_tracking else None
+        self.sensor_fusion = None
+        if enable_sensor_fusion and camera_configs:
+            self.sensor_fusion = SensorFusion(camera_configs)
         self.overlay_renderer = OverlayRenderer()
+
+        # Camera configs for sensor fusion
+        self.camera_configs = camera_configs or {}
 
         # Frame queue
         self.frame_queue: Dict[int, CameraFrame] = {}
@@ -88,7 +102,7 @@ class PerceptionProcessor(QThread):
         self.stats_update_interval = 1.0  # seconds
         self.last_stats_update = time.time()
 
-        logger.info("Perception processor initialized")
+        logger.info("Perception processor initialized with sensor fusion: {}".format(enable_sensor_fusion))
 
     def run(self):
         """Main processing loop."""
@@ -132,16 +146,22 @@ class PerceptionProcessor(QThread):
         self.frame_queue.clear()
         self.queue_lock = False
 
+        # Collect all detections from all cameras for fusion
+        all_detections_by_camera: Dict[int, List[DetectedObject]] = {}
+        frame_results: Dict[int, PerceptionResult] = {}
+
         # Process each frame
         for camera_id, frame in frames_to_process.items():
             try:
                 start_time = time.time()
 
-                # Run perception pipeline
+                # Run perception pipeline (detection + lane detection)
                 result = self._process_single_frame(frame)
+                frame_results[camera_id] = result
 
-                # Render overlays
-                image_with_overlay = self._render_overlays(frame.image, result, camera_id)
+                # Collect detections for sensor fusion
+                if camera_id in result.detections_by_camera:
+                    all_detections_by_camera[camera_id] = result.detections_by_camera[camera_id]
 
                 # Calculate processing time
                 processing_time = (time.time() - start_time) * 1000  # ms
@@ -151,11 +171,35 @@ class PerceptionProcessor(QThread):
                 self.perf_monitor.update_camera_fps(camera_id)
                 self.perf_monitor.add_latency(processing_time)
 
+            except Exception as e:
+                logger.error(f"Error processing frame from camera {camera_id}: {e}")
+                self.processing_error.emit(camera_id, str(e))
+
+        # Apply sensor fusion if enabled and we have detections
+        if self.enable_sensor_fusion and self.sensor_fusion and all_detections_by_camera:
+            fused_detections = self.sensor_fusion.fuse_detections(all_detections_by_camera)
+
+            # Update tracking with fused detections
+            if self.enable_tracking and self.tracker:
+                tracked = self.tracker.update(all_detections_by_camera)  # Still use per-camera for tracking
+
+                # Update results with tracked objects (same for all cameras)
+                for camera_id, result in frame_results.items():
+                    result.tracked_objects = tracked
+
+        # Render and emit results for each camera
+        for camera_id, result in frame_results.items():
+            try:
+                frame = frames_to_process[camera_id]
+
+                # Render overlays
+                image_with_overlay = self._render_overlays(frame.image, result, camera_id)
+
                 # Emit result
                 self.result_ready.emit(camera_id, image_with_overlay, result)
 
             except Exception as e:
-                logger.error(f"Error processing frame from camera {camera_id}: {e}")
+                logger.error(f"Error rendering camera {camera_id}: {e}")
                 self.processing_error.emit(camera_id, str(e))
 
     def _process_single_frame(self, frame: CameraFrame) -> PerceptionResult:
@@ -192,11 +236,7 @@ class PerceptionProcessor(QThread):
             )
             result.detections_by_camera[frame.camera_id] = detections
 
-        # Object tracking
-        if self.enable_tracking and self.tracker and detections:
-            # Update tracker with all detections
-            tracked = self.tracker.update({frame.camera_id: detections})
-            result.tracked_objects = tracked
+        # Note: Object tracking is now done in _process_frames after sensor fusion
 
         return result
 
@@ -237,7 +277,8 @@ class PerceptionProcessor(QThread):
             "performance": self.perf_monitor.get_metrics().__dict__,
             "lane_detection": self.lane_detector.get_statistics() if self.lane_detector else {},
             "object_detection": self.object_detector.get_statistics() if self.object_detector else {},
-            "tracking": self.tracker.get_statistics() if self.tracker else {}
+            "tracking": self.tracker.get_statistics() if self.tracker else {},
+            "sensor_fusion": self.sensor_fusion.get_statistics() if self.sensor_fusion else {}
         }
 
         self.statistics_updated.emit(stats)
