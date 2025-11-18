@@ -1,11 +1,27 @@
 """
-Recording and playback modules.
+Recording and playback modules for the perception system.
 
-This package will contain:
-- Multi-camera video recording
-- Perception data logging
-- Session playback engine
+Provides:
+- Multi-camera synchronized video recording
+- Metadata recording (detections, tracking, sensor fusion)
+- Session playback with controls
+- Data export utilities
 """
 
-# Placeholder for future recording modules
-__all__ = []
+from .recording_manager import RecordingManager, RecordingConfig, RecordingStatus
+from .video_writer import MultiCameraVideoWriter, VideoWriterConfig, CameraVideoWriter
+from .metadata_writer import MetadataWriter
+from .playback_manager import PlaybackManager, PlaybackStatus, PlaybackState
+
+__all__ = [
+    'RecordingManager',
+    'RecordingConfig',
+    'RecordingStatus',
+    'MultiCameraVideoWriter',
+    'VideoWriterConfig',
+    'CameraVideoWriter',
+    'MetadataWriter',
+    'PlaybackManager',
+    'PlaybackStatus',
+    'PlaybackState',
+]
