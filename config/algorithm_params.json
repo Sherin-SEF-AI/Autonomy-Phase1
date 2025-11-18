@@ -1,0 +1,93 @@
+{
+  "lane_detection": {
+    "roi_vertices": {
+      "description": "Region of interest for lane detection (percentage of image dimensions)",
+      "bottom_left": [0.1, 0.95],
+      "bottom_right": [0.9, 0.95],
+      "top_left": [0.4, 0.6],
+      "top_right": [0.6, 0.6]
+    },
+
+    "canny": {
+      "low_threshold": 50,
+      "high_threshold": 150,
+      "kernel_size": 5
+    },
+
+    "hough_lines": {
+      "rho": 2,
+      "theta_degrees": 1,
+      "threshold": 50,
+      "min_line_length": 50,
+      "max_line_gap": 10
+    },
+
+    "lane_filtering": {
+      "min_slope": 0.3,
+      "max_slope": 3.0,
+      "slope_tolerance": 0.2
+    },
+
+    "polynomial_fitting": {
+      "degree": 2,
+      "sample_points": 100
+    }
+  },
+
+  "object_detection": {
+    "yolo": {
+      "model_name": "yolov8n.pt",
+      "input_size": 640,
+      "confidence": 0.5,
+      "iou": 0.45,
+      "max_det": 100,
+      "device": "cpu",
+      "half_precision": false
+    },
+
+    "class_names": {
+      "0": "person",
+      "1": "bicycle",
+      "2": "car",
+      "3": "motorcycle",
+      "5": "bus",
+      "7": "truck",
+      "9": "traffic light",
+      "11": "stop sign"
+    },
+
+    "distance_estimation": {
+      "person_height_m": 1.7,
+      "car_height_m": 1.5,
+      "truck_height_m": 3.0,
+      "bicycle_height_m": 1.0
+    }
+  },
+
+  "tracking": {
+    "centroid": {
+      "max_disappeared": 30,
+      "max_distance": 100
+    },
+
+    "kalman_filter": {
+      "process_noise": 1e-5,
+      "measurement_noise": 1e-1,
+      "initial_uncertainty": 1.0
+    }
+  },
+
+  "sensor_fusion": {
+    "homography": {
+      "camera_height_m": 1.2,
+      "camera_tilt_deg": 10.0
+    },
+
+    "object_association": {
+      "spatial_threshold_m": 2.0,
+      "class_match_required": true,
+      "confidence_weight": 0.3,
+      "distance_weight": 0.7
+    }
+  }
+}

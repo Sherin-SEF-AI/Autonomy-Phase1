@@ -1,0 +1,100 @@
+{
+  "system": {
+    "name": "Autonomous Vehicle Perception System",
+    "version": "1.0.0",
+    "log_level": "INFO",
+    "log_directory": "data/logs"
+  },
+  "cameras": {
+    "num_cameras": 4,
+    "sync_threshold_ms": 50.0,
+    "default_resolution": [640, 480],
+    "default_fps": 30,
+    "buffer_size": 10
+  },
+  "perception": {
+    "enable_lane_detection": true,
+    "enable_object_detection": true,
+    "enable_tracking": true,
+    "enable_fusion": true,
+
+    "lane_detection": {
+      "canny_low_threshold": 50,
+      "canny_high_threshold": 150,
+      "hough_threshold": 50,
+      "hough_min_line_length": 50,
+      "hough_max_line_gap": 10
+    },
+
+    "object_detection": {
+      "model": "yolov8n.pt",
+      "confidence_threshold": 0.5,
+      "iou_threshold": 0.45,
+      "detection_interval_frames": 2,
+      "max_detections": 100,
+      "classes": [0, 1, 2, 3, 5, 7]
+    },
+
+    "tracking": {
+      "max_age": 30,
+      "min_hits": 3,
+      "iou_threshold": 0.3
+    },
+
+    "fusion": {
+      "spatial_threshold_meters": 2.0,
+      "class_matching": true,
+      "confidence_aggregation": "max"
+    }
+  },
+  "visualization": {
+    "bev_width": 400,
+    "bev_height": 600,
+    "meters_per_pixel": 0.05,
+    "show_trajectories": true,
+    "trajectory_length": 30,
+    "show_velocity_vectors": true
+  },
+  "safety": {
+    "enable_warnings": true,
+
+    "forward_collision": {
+      "enabled": true,
+      "advisory_threshold_s": 3.0,
+      "caution_threshold_s": 2.0,
+      "critical_threshold_s": 1.0
+    },
+
+    "lane_departure": {
+      "enabled": true,
+      "lateral_offset_threshold_m": 0.3,
+      "time_to_departure_s": 1.5
+    },
+
+    "blind_spot": {
+      "enabled": true,
+      "detection_range_m": 10.0,
+      "warning_zone_width_m": 2.0
+    }
+  },
+  "recording": {
+    "output_directory": "data/recordings",
+    "video_codec": "mp4v",
+    "video_fps": 30,
+    "compression_quality": 80,
+    "record_metadata": true,
+    "low_disk_space_threshold_gb": 5.0
+  },
+  "performance": {
+    "max_fps": 30,
+    "enable_gpu": false,
+    "num_threads": 4,
+    "frame_skip_threshold_ms": 200
+  },
+  "ui": {
+    "theme": "dark",
+    "update_interval_ms": 33,
+    "show_debug_info": true,
+    "auto_start_cameras": false
+  }
+}

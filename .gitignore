@@ -1,0 +1,91 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# PyQt
+*.pyc
+*.pyo
+*.ui
+
+# Data directories
+data/recordings/*
+!data/recordings/.gitkeep
+data/logs/*
+!data/logs/.gitkeep
+data/exports/*
+!data/exports/.gitkeep
+
+# Models
+models/*.pt
+models/*.onnx
+models/*.weights
+!models/.gitkeep
+
+# Camera calibrations (may want to version control these)
+config/camera_profiles/*
+!config/camera_profiles/.gitkeep
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Temporary files
+*.tmp
+*.bak
+*.orig
+*.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Video files (recordings can be large)
+*.avi
+*.mp4
+*.mkv
+*.mov
+
+# Large data files
+*.csv
+*.json.bak
