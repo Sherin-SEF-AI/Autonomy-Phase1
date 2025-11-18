@@ -4,6 +4,59 @@ All notable changes to the Autonomous Vehicle Perception System will be document
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.2] - 2025-01-18
+
+### Added
+- **Advanced Trajectory Prediction System** (`perception/trajectory_prediction.py`)
+  - Linear extrapolation and polynomial fitting for future position prediction
+  - Predicts object trajectories up to 3 seconds ahead with 10 discrete time steps
+  - Collision risk assessment (0-1 scale) based on predicted paths
+  - Multi-object collision pair detection
+  - Automatic cleanup of old trajectory histories
+  - Integration with perception processor for real-time predictions
+
+- **Object Behavior Classification** (`perception/behavior_classification.py`)
+  - Motion state classification: stationary, moving, stopping, starting
+  - Turning behavior detection: straight, turning left/right
+  - Speed change analysis: accelerating, decelerating, constant speed
+  - Advanced maneuver detection: lane changes, parking, U-turns, reversing
+  - Behavior confidence scoring based on tracking quality
+  - 30-frame history window for robust classification
+
+- **Scene Understanding Module** (`perception/scene_understanding.py`)
+  - Traffic density classification: empty, light, moderate, heavy, congested
+  - Scene type detection: highway, urban street, residential, parking lot, intersection
+  - Traffic flow analysis: same direction, opposite directions, multi-directional
+  - Situational complexity assessment: simple, moderate, complex, critical
+  - Danger level evaluation: safe, cautious, warning, danger
+  - Erratic behavior detection (hard braking, sharp turns, unusual maneuvers)
+  - Pedestrian and vulnerable road user detection
+  - Lane keeping quality assessment
+  - Intersection detection based on traffic flow patterns
+  - Trend analysis for key metrics
+
+- **Enhanced Visualization Features**
+  - Trajectory prediction arrows on camera overlays (showing 1s ahead prediction)
+  - Time-to-collision (TTC) warnings with color-coded severity
+  - Collision warning circles for critical situations (TTC < 1.5s)
+  - Predicted trajectory visualization in bird's eye view (cyan arrows)
+  - Collision risk visualization with warning circles in BEV
+  - Enhanced object labels with TTC information
+
+### Changed
+- Perception processor now integrates trajectory prediction, behavior classification, and scene understanding
+- Tracked objects now include predicted positions and time-to-collision estimates
+- BEV generator enhanced with predicted trajectory and collision warning overlays
+- Overlay renderer extended with trajectory prediction visualization toggle
+- Camera overlays now show predicted movement direction for tracked objects
+
+### Improved
+- Camera reconnection logic with exponential backoff (1s → 2s → 4s → 8s → 16s → 30s max)
+- Maximum reconnection attempts limit (5 attempts before giving up)
+- Error log rate limiting to prevent console spam (max every 5 seconds)
+- Better error messages for camera failures
+- More robust camera failure handling
+
 ## [1.0.1] - 2025-01-18
 
 ### Fixed

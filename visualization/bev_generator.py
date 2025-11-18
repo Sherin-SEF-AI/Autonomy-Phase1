@@ -50,6 +50,8 @@ class BEVConfig:
     vehicle_color: Tuple[int, int, int] = (0, 255, 0)
     object_color: Tuple[int, int, int] = (255, 128, 0)
     trajectory_color: Tuple[int, int, int] = (255, 128, 255)
+    predicted_trajectory_color: Tuple[int, int, int] = (128, 255, 255)  # Cyan for predictions
+    collision_warning_color: Tuple[int, int, int] = (0, 0, 255)  # Red for collision warnings
     fov_color: Tuple[int, int, int] = (100, 100, 100)
 
 
@@ -336,6 +338,39 @@ class BEVGenerator:
                 vel_pixel_y = pixel_y - int(vx / self.config.meters_per_pixel * 2)
                 cv2.arrowedLine(bev, (pixel_x, pixel_y), (vel_pixel_x, vel_pixel_y), (0, 255, 255), 1)
 
+            # Draw predicted position and trajectory
+            if self.config.show_trajectories and obj.predicted_position:
+                pred_x, pred_y, pred_z = obj.predicted_position
+
+                if self._is_in_range(pred_x, pred_y):
+                    pred_pixel_x, pred_pixel_y = self._vehicle_to_bev_coords(pred_x, pred_y)
+
+                    # Draw line from current to predicted position
+                    cv2.line(bev, (pixel_x, pixel_y), (pred_pixel_x, pred_pixel_y),
+                            self.config.predicted_trajectory_color, 2, cv2.LINE_AA)
+
+                    # Draw predicted position as circle
+                    cv2.circle(bev, (pred_pixel_x, pred_pixel_y), 5,
+                             self.config.predicted_trajectory_color, 1)
+                    cv2.circle(bev, (pred_pixel_x, pred_pixel_y), 3,
+                             self.config.predicted_trajectory_color, -1)
+
+            # Draw collision warning circle if time_to_collision is low
+            if obj.time_to_collision is not None and obj.time_to_collision <= 2.5:
+                warning_radius = int(2.0 / self.config.meters_per_pixel)  # 2m radius
+
+                if obj.time_to_collision <= 1.5:
+                    # Critical warning - thick red circle
+                    cv2.circle(bev, (pixel_x, pixel_y), warning_radius,
+                             self.config.collision_warning_color, 3)
+                    # Add flashing effect with filled circle
+                    cv2.circle(bev, (pixel_x, pixel_y), warning_radius//2,
+                             self.config.collision_warning_color, -1)
+                else:
+                    # Caution warning - thinner orange circle
+                    cv2.circle(bev, (pixel_x, pixel_y), warning_radius,
+                             (0, 165, 255), 2)
+
             # Draw tracking ID and info
             label = f"ID:{obj.track_id}"
             if obj.current_velocity:
@@ -343,13 +378,20 @@ class BEVGenerator:
                 speed = np.sqrt(vx**2 + vy**2)
                 label += f" {speed:.1f}m/s"
 
+            # Add time to collision to label if available
+            if obj.time_to_collision is not None and obj.time_to_collision <= 3.0:
+                label += f" TTC:{obj.time_to_collision:.1f}s"
+                label_color = self.config.collision_warning_color
+            else:
+                label_color = (255, 255, 255)
+
             cv2.putText(
                 bev,
                 label,
                 (pixel_x + 10, pixel_y),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.3,
-                (255, 255, 255),
+                label_color,
                 1
             )
 

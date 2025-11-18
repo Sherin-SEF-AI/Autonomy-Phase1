@@ -58,9 +58,14 @@ class CameraCaptureThread(QThread):
         self.fps_start_time = time.time()
         self.current_fps = 0.0
 
-        # Error handling
+        # Error handling with exponential backoff
         self.consecutive_errors = 0
         self.max_consecutive_errors = 10
+        self.reconnection_attempts = 0
+        self.max_reconnection_attempts = 5  # Stop after 5 failed reconnections
+        self.reconnection_backoff = 1.0  # Start with 1 second
+        self.max_backoff = 30.0  # Max 30 seconds between attempts
+        self.last_error_log_time = 0.0  # For error log rate limiting
 
     def run(self):
         """
@@ -198,27 +203,46 @@ class CameraCaptureThread(QThread):
         return camera_frame
 
     def _handle_capture_error(self):
-        """Handle capture errors with reconnection attempts."""
+        """Handle capture errors with exponential backoff reconnection."""
         self.consecutive_errors += 1
 
         if self.consecutive_errors >= self.max_consecutive_errors:
-            logger.error(
-                f"Camera {self.camera_id}: Too many consecutive errors ({self.consecutive_errors}), "
-                "attempting to reconnect..."
-            )
+            # Rate limit error logging (don't spam logs)
+            current_time = time.time()
+            if current_time - self.last_error_log_time > 5.0:  # Log at most every 5 seconds
+                logger.error(
+                    f"Camera {self.camera_id}: Too many consecutive errors ({self.consecutive_errors}), "
+                    f"reconnection attempt {self.reconnection_attempts + 1}/{self.max_reconnection_attempts}"
+                )
+                self.last_error_log_time = current_time
+
             self.status_changed.emit(self.camera_id, CameraStatus.ERROR)
 
-            # Try to reconnect
+            # Check if we've exceeded max reconnection attempts
+            if self.reconnection_attempts >= self.max_reconnection_attempts:
+                logger.error(
+                    f"Camera {self.camera_id}: Max reconnection attempts reached. "
+                    "Camera disabled. Please check hardware connection."
+                )
+                self._running = False
+                return
+
+            # Try to reconnect with exponential backoff
             self._close_camera()
-            time.sleep(1.0)
+            logger.info(f"Camera {self.camera_id}: Waiting {self.reconnection_backoff:.1f}s before reconnection...")
+            time.sleep(self.reconnection_backoff)
 
             if self._open_camera():
                 logger.info(f"Camera {self.camera_id}: Reconnected successfully")
                 self.status_changed.emit(self.camera_id, CameraStatus.ACTIVE)
                 self.consecutive_errors = 0
+                self.reconnection_attempts = 0
+                self.reconnection_backoff = 1.0  # Reset backoff on success
             else:
-                logger.error(f"Camera {self.camera_id}: Reconnection failed")
-                self._running = False
+                logger.warning(f"Camera {self.camera_id}: Reconnection attempt failed")
+                self.reconnection_attempts += 1
+                # Exponential backoff: double the wait time, up to max
+                self.reconnection_backoff = min(self.reconnection_backoff * 2, self.max_backoff)
         else:
             # Minor error, just wait a bit
             time.sleep(0.01)

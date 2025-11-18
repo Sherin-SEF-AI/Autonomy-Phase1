@@ -34,7 +34,7 @@ def main():
 
     logger.info("=" * 80)
     logger.info("AUTONOMOUS VEHICLE PERCEPTION SYSTEM")
-    logger.info("Version 1.0.0")
+    logger.info("Version 1.0.2")
     logger.info("=" * 80)
 
     # Run system check

@@ -82,7 +82,8 @@ class OverlayRenderer:
         show_tracking: bool = True,
         show_distance: bool = True,
         show_warnings: bool = True,
-        show_info_panel: bool = True
+        show_info_panel: bool = True,
+        show_trajectory_prediction: bool = True
     ):
         """
         Initialize overlay renderer.
@@ -94,6 +95,7 @@ class OverlayRenderer:
             show_distance: Show distance information
             show_warnings: Show safety warnings
             show_info_panel: Show information panel
+            show_trajectory_prediction: Show predicted trajectories and collision warnings
         """
         self.show_lanes = show_lanes
         self.show_detections = show_detections
@@ -101,6 +103,7 @@ class OverlayRenderer:
         self.show_distance = show_distance
         self.show_warnings = show_warnings
         self.show_info_panel = show_info_panel
+        self.show_trajectory_prediction = show_trajectory_prediction
 
         # Font settings
         self.font = cv2.FONT_HERSHEY_SIMPLEX
@@ -261,6 +264,7 @@ class OverlayRenderer:
             # Draw tracking ID
             track_text = f"ID:{obj.track_id}"
             center_x = (x1 + x2) // 2
+            center_y = (y1 + y2) // 2
             self._draw_text_with_background(
                 image,
                 track_text,
@@ -282,9 +286,59 @@ class OverlayRenderer:
                     font_scale=0.4
                 )
 
-            # Draw trajectory (if in image coordinates)
-            # Note: This would need conversion from 3D to 2D coordinates
-            # For now, skip trajectory drawing
+            # Draw trajectory prediction if enabled
+            if self.show_trajectory_prediction:
+                # Draw collision warning based on time_to_collision
+                if obj.time_to_collision is not None:
+                    if obj.time_to_collision <= 1.5:
+                        warning_color = Colors.WARNING_CRITICAL
+                        warning_text = f"⚠ TTC: {obj.time_to_collision:.1f}s"
+                        # Draw a red circle around the object
+                        cv2.circle(image, (center_x, center_y),
+                                 max((x2-x1), (y2-y1))//2 + 10,
+                                 warning_color, 3)
+                    elif obj.time_to_collision <= 2.5:
+                        warning_color = Colors.WARNING_CAUTION
+                        warning_text = f"TTC: {obj.time_to_collision:.1f}s"
+                    else:
+                        warning_color = Colors.WARNING_ADVISORY
+                        warning_text = f"TTC: {obj.time_to_collision:.1f}s"
+
+                    # Draw time to collision warning
+                    self._draw_text_with_background(
+                        image,
+                        warning_text,
+                        (center_x - 30, y1 - 10),
+                        warning_color,
+                        font_scale=0.5,
+                        thickness=2
+                    )
+
+                # Draw predicted position arrow
+                if obj.predicted_position and obj.current_position:
+                    # Simple visualization: draw arrow from current to predicted position
+                    # Note: This is a simplified 2D projection
+                    # In reality would need proper camera projection
+                    curr_x, curr_y, _ = obj.current_position
+                    pred_x, pred_y, _ = obj.predicted_position
+
+                    # Convert 3D deltas to approximate 2D screen deltas
+                    # This is a rough approximation - proper camera projection would be better
+                    dx = (pred_x - curr_x) * 20  # Scale factor for visualization
+                    dy = (pred_y - curr_y) * 20
+
+                    # Draw arrow from center to predicted position
+                    end_x = int(center_x + dx)
+                    end_y = int(center_y - dy)  # Negative because y-axis is flipped in image
+
+                    cv2.arrowedLine(
+                        image,
+                        (center_x, center_y),
+                        (end_x, end_y),
+                        Colors.TRAJECTORY,
+                        2,
+                        tipLength=0.3
+                    )
 
         return image
 
@@ -458,3 +512,7 @@ class OverlayRenderer:
     def toggle_info_panel(self, enabled: bool):
         """Toggle information panel display."""
         self.show_info_panel = enabled
+
+    def toggle_trajectory_prediction(self, enabled: bool):
+        """Toggle trajectory prediction display."""
+        self.show_trajectory_prediction = enabled

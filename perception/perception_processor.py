@@ -29,6 +29,8 @@ from perception.lane_detection import LaneDetector, LaneDetectionConfig
 from perception.object_detection import ObjectDetector, ObjectDetectionConfig
 from perception.object_tracking import MultiCameraTracker
 from perception.sensor_fusion import SensorFusion, FusionConfig
+from perception.trajectory_prediction import TrajectoryPredictor
+from perception.behavior_classification import BehaviorClassifier
 from visualization.overlay_renderer import OverlayRenderer
 
 
@@ -54,6 +56,7 @@ class PerceptionProcessor(QThread):
         enable_object_detection: bool = True,
         enable_tracking: bool = True,
         enable_sensor_fusion: bool = True,
+        enable_trajectory_prediction: bool = True,
         camera_configs: Optional[Dict[int, CameraConfig]] = None,
         parent=None
     ):
@@ -65,6 +68,7 @@ class PerceptionProcessor(QThread):
             enable_object_detection: Enable object detection
             enable_tracking: Enable object tracking
             enable_sensor_fusion: Enable sensor fusion
+            enable_trajectory_prediction: Enable trajectory prediction
             camera_configs: Camera configurations for sensor fusion
             parent: Parent QObject
         """
@@ -74,11 +78,14 @@ class PerceptionProcessor(QThread):
         self.enable_object_detection = enable_object_detection
         self.enable_tracking = enable_tracking
         self.enable_sensor_fusion = enable_sensor_fusion
+        self.enable_trajectory_prediction = enable_trajectory_prediction
 
         # Perception modules
         self.lane_detector = LaneDetector() if enable_lane_detection else None
         self.object_detector = ObjectDetector() if enable_object_detection else None
         self.tracker = MultiCameraTracker(num_cameras=4) if enable_tracking else None
+        self.trajectory_predictor = TrajectoryPredictor() if enable_trajectory_prediction else None
+        self.behavior_classifier = BehaviorClassifier() if enable_tracking else None
         self.sensor_fusion = None
         if enable_sensor_fusion and camera_configs:
             self.sensor_fusion = SensorFusion(camera_configs)
@@ -182,6 +189,51 @@ class PerceptionProcessor(QThread):
             # Update tracking with fused detections
             if self.enable_tracking and self.tracker:
                 tracked = self.tracker.update(all_detections_by_camera)  # Still use per-camera for tracking
+
+                # Predict trajectories for tracked objects
+                if self.enable_trajectory_prediction and self.trajectory_predictor and tracked:
+                    predictions = self.trajectory_predictor.predict_all(tracked)
+
+                    # Update tracked objects with predictions
+                    for obj in tracked:
+                        if obj.track_id in predictions:
+                            pred = predictions[obj.track_id]
+                            # Set predicted position (1 second ahead)
+                            if len(pred.predicted_positions) > 0:
+                                # Use prediction at ~1 second ahead (middle of prediction horizon)
+                                mid_idx = len(pred.predicted_positions) // 2
+                                obj.predicted_position = pred.predicted_positions[mid_idx]
+
+                            # Calculate time to collision based on collision risk
+                            if pred.collision_risk > 0.8:
+                                obj.time_to_collision = 1.0  # Critical: ~1 second
+                            elif pred.collision_risk > 0.5:
+                                obj.time_to_collision = 2.0  # Warning: ~2 seconds
+                            elif pred.collision_risk > 0.2:
+                                obj.time_to_collision = 3.0  # Advisory: ~3 seconds
+                            else:
+                                obj.time_to_collision = None  # No immediate threat
+
+                    # Cleanup old trajectory histories
+                    active_ids = [obj.track_id for obj in tracked]
+                    self.trajectory_predictor.cleanup_old_tracks(active_ids)
+
+                # Classify object behaviors
+                if self.behavior_classifier and tracked:
+                    behaviors = self.behavior_classifier.classify_all(tracked)
+
+                    # Log interesting behaviors for debugging
+                    for track_id, behavior in behaviors.items():
+                        if behavior.maneuver_type.value != "normal_driving" and behavior.maneuver_type.value != "unknown":
+                            logger.debug(
+                                f"Object {track_id}: {behavior.maneuver_type.value} "
+                                f"(motion: {behavior.motion_state.value}, "
+                                f"turn: {behavior.turning_behavior.value})"
+                            )
+
+                    # Cleanup old behavior histories
+                    active_ids = [obj.track_id for obj in tracked]
+                    self.behavior_classifier.cleanup_old_tracks(active_ids)
 
                 # Update results with tracked objects (same for all cameras)
                 for camera_id, result in frame_results.items():
