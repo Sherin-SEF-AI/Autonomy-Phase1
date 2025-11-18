@@ -14,6 +14,7 @@ from PyQt6.QtCore import Qt
 
 from ui.main_window import MainWindow
 from utils.logger import get_logger
+from utils.system_check import run_system_check
 
 
 def signal_handler(sig, frame):
@@ -36,12 +37,24 @@ def main():
     logger.info("Version 1.0.0")
     logger.info("=" * 80)
 
+    # Run system check
+    logger.info("Running system check...")
+    try:
+        system_ok = run_system_check(verbose=False)
+        if system_ok:
+            logger.info("System check passed ✓")
+        else:
+            logger.warning("System check found issues (see above)")
+            logger.warning("Attempting to continue anyway...")
+    except Exception as e:
+        logger.warning(f"System check failed: {e}")
+        logger.warning("Continuing anyway...")
+
     # Handle Ctrl+C gracefully
     signal.signal(signal.SIGINT, signal_handler)
 
-    # Enable high DPI scaling
-    QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
-    QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
+    # Note: High DPI scaling is enabled by default in PyQt6
+    # AA_EnableHighDpiScaling and AA_UseHighDpiPixmaps are no longer needed
 
     # Create Qt application
     app = QApplication(sys.argv)
