@@ -13,7 +13,7 @@ torchvision==0.16.2
 
 # Numerical Computing
 numpy==1.24.3
-scipy==1.11.4
+scipy==1.11.4  # For spatial distance calculations in tracking
 
 # Plotting and Visualization
 pyqtgraph==0.13.3

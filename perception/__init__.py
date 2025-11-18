@@ -1,14 +1,24 @@
 """
 Perception modules for autonomous vehicle perception.
 
-This package will contain:
-- Lane detection algorithms
-- Object detection (YOLO-based)
+Provides:
+- Lane detection (classical computer vision)
+- Object detection (YOLOv8-based)
 - Multi-object tracking
-- Sensor fusion
-- Distance estimation
-- Path prediction
+- Perception processing pipeline
 """
 
-# Placeholder for future perception modules
-__all__ = []
+from .lane_detection import LaneDetector, LaneDetectionConfig
+from .object_detection import ObjectDetector, ObjectDetectionConfig
+from .object_tracking import CentroidTracker, MultiCameraTracker
+from .perception_processor import PerceptionProcessor
+
+__all__ = [
+    'LaneDetector',
+    'LaneDetectionConfig',
+    'ObjectDetector',
+    'ObjectDetectionConfig',
+    'CentroidTracker',
+    'MultiCameraTracker',
+    'PerceptionProcessor',
+]

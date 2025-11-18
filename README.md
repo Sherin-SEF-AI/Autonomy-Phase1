@@ -14,13 +14,44 @@ A professional-grade, multi-camera perception system for autonomous vehicle deve
 - **Camera Settings**: Individual configuration for resolution, FPS, exposure, brightness, contrast
 - **Error Handling**: Graceful failure handling with automatic reconnection attempts
 
-### Phase 2: Basic Perception (Coming Next)
-- Lane detection (Canny edge detection, Hough transform)
-- YOLOv8 object detection (vehicles, pedestrians, cyclists, signs)
-- Basic object tracking
-- Overlay rendering on camera feeds
+### Phase 2: Basic Perception ✅ (COMPLETED)
+- **Lane Detection**: Classical CV pipeline with edge detection, Hough transform, polynomial fitting
+  - Canny edge detection with Gaussian blur
+  - ROI masking for road area
+  - Hough line transform for lane line detection
+  - Polynomial curve fitting (2nd degree)
+  - Temporal smoothing for stability
+  - Lane departure warning
+  - Lateral offset calculation
+- **Object Detection**: YOLOv8n integration for real-time detection
+  - Multi-class detection (person, bicycle, car, motorcycle, bus, truck, traffic signs/lights)
+  - Configurable confidence thresholds
+  - Distance estimation using pinhole camera model
+  - Detection caching for performance (runs every N frames)
+  - Auto-download of YOLOv8 model weights
+- **Object Tracking**: Centroid-based tracking with unique IDs
+  - Multi-object tracking across frames
+  - Centroid distance matching
+  - Track lifecycle management (creation, update, deletion)
+  - Multi-camera tracking support
+  - Trajectory recording
+  - Velocity estimation
+- **Overlay Rendering**: Rich visualization on camera feeds
+  - Lane lines with filled polygon between lanes
+  - Bounding boxes with class labels and confidence scores
+  - Object tracking IDs and velocities
+  - Distance information
+  - Info panel with statistics
+  - Color-coded warnings
+  - Customizable overlay toggles
+- **Perception Processor**: Integrated pipeline with threading
+  - Dedicated QThread for perception processing
+  - Coordinates lane detection, object detection, and tracking
+  - Automatic overlay rendering
+  - Performance monitoring
+  - Configurable enable/disable for each algorithm
 
-### Phase 3: Multi-Camera Integration
+### Phase 3: Multi-Camera Integration (Coming Next)
 - Sensor fusion (object deduplication across cameras)
 - Bird's eye view (BEV) generation
 - 360-degree surround view
@@ -279,11 +310,11 @@ Logs are saved to `data/logs/` with timestamps. Log levels:
 ## 🗺️ Roadmap
 
 - [x] Phase 1: Core Infrastructure (COMPLETE)
-- [ ] Phase 2: Basic Perception
-  - [ ] Lane detection
-  - [ ] Object detection (YOLOv8)
-  - [ ] Object tracking
-  - [ ] Overlay rendering
+- [x] Phase 2: Basic Perception (COMPLETE)
+  - [x] Lane detection
+  - [x] Object detection (YOLOv8)
+  - [x] Object tracking
+  - [x] Overlay rendering
 - [ ] Phase 3: Multi-Camera Integration
   - [ ] Sensor fusion
   - [ ] Bird's eye view

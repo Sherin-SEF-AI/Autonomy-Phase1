@@ -13,10 +13,12 @@ from PyQt6.QtCore import Qt, QTimer, pyqtSignal
 from PyQt6.QtGui import QAction, QKeySequence
 from typing import Dict, Optional
 import time
+import numpy as np
 
-from utils.data_structures import CameraConfig, CameraPosition, CameraStatus
+from utils.data_structures import CameraConfig, CameraPosition, CameraStatus, PerceptionResult
 from utils.logger import get_logger
 from camera.camera_manager import CameraManager
+from perception.perception_processor import PerceptionProcessor
 from ui.camera_widget import CameraWidget
 from ui.settings_dialog import CameraSettingsDialog
 
@@ -39,6 +41,10 @@ class MainWindow(QMainWindow):
         # Camera manager
         self.camera_manager = CameraManager(enable_synchronization=True)
         self.camera_widgets: Dict[int, CameraWidget] = {}
+
+        # Perception processor
+        self.perception_processor: Optional[PerceptionProcessor] = None
+        self.perception_enabled = False
 
         # System state
         self.is_running = False
@@ -304,6 +310,13 @@ class MainWindow(QMainWindow):
         self.camera_manager.camera_error.connect(self._on_camera_error)
         self.camera_manager.camera_fps_updated.connect(self._on_camera_fps_updated)
 
+    def _connect_perception_signals(self):
+        """Connect perception processor signals to handlers."""
+        if self.perception_processor:
+            self.perception_processor.result_ready.connect(self._on_perception_result)
+            self.perception_processor.processing_error.connect(self._on_perception_error)
+            self.perception_processor.statistics_updated.connect(self._on_perception_stats)
+
     def _initialize_default_cameras(self):
         """Initialize default camera configurations."""
         logger.info("Initializing default camera configuration...")
@@ -342,6 +355,20 @@ class MainWindow(QMainWindow):
         """Start the perception system."""
         logger.info("Starting perception system...")
 
+        # Initialize and start perception processor
+        if self.perception_processor is None:
+            self.perception_processor = PerceptionProcessor(
+                enable_lane_detection=True,
+                enable_object_detection=True,
+                enable_tracking=True
+            )
+            self._connect_perception_signals()
+
+        if not self.perception_processor.isRunning():
+            self.perception_processor.start()
+            self.perception_enabled = True
+            logger.info("Perception processor started")
+
         # Start all cameras
         self.camera_manager.start_all_cameras()
 
@@ -372,6 +399,13 @@ class MainWindow(QMainWindow):
     def _stop_system(self):
         """Stop the perception system."""
         logger.info("Stopping perception system...")
+
+        # Stop perception processor
+        if self.perception_processor and self.perception_processor.isRunning():
+            self.perception_processor.stop()
+            self.perception_processor.wait(5000)  # Wait up to 5 seconds
+            self.perception_enabled = False
+            logger.info("Perception processor stopped")
 
         # Stop all cameras
         self.camera_manager.stop_all_cameras()
@@ -414,8 +448,14 @@ class MainWindow(QMainWindow):
     def _on_frame_received(self, frame):
         """Handle new frame from camera."""
         camera_id = frame.camera_id
-        if camera_id in self.camera_widgets:
-            self.camera_widgets[camera_id].update_frame(frame)
+
+        # Send frame to perception processor if enabled
+        if self.perception_enabled and self.perception_processor:
+            self.perception_processor.add_frame(frame)
+        else:
+            # Display frame directly without perception
+            if camera_id in self.camera_widgets:
+                self.camera_widgets[camera_id].update_frame(frame)
 
     def _on_camera_status_changed(self, camera_id: int, status: CameraStatus):
         """Handle camera status change."""
@@ -543,6 +583,39 @@ class MainWindow(QMainWindow):
             "<p>Built with PyQt6, OpenCV, and YOLOv8</p>"
         )
 
+    def _on_perception_result(self, camera_id: int, image_with_overlay: np.ndarray, result: PerceptionResult):
+        """
+        Handle perception result.
+
+        Args:
+            camera_id: Camera that produced this result
+            image_with_overlay: Image with rendered overlays
+            result: Perception result
+        """
+        # Update camera widget with processed frame
+        if camera_id in self.camera_widgets:
+            # Create a temporary CameraFrame to pass to the widget
+            from utils.data_structures import CameraFrame, CameraPosition
+            frame = CameraFrame(
+                camera_id=camera_id,
+                timestamp=result.timestamp,
+                frame_number=result.frame_number,
+                image=image_with_overlay,
+                width=image_with_overlay.shape[1],
+                height=image_with_overlay.shape[0],
+                camera_position=CameraPosition(camera_id)
+            )
+            self.camera_widgets[camera_id].update_frame(frame)
+
+    def _on_perception_error(self, camera_id: int, error_message: str):
+        """Handle perception processing error."""
+        logger.error(f"Perception error on camera {camera_id}: {error_message}")
+
+    def _on_perception_stats(self, stats: dict):
+        """Handle perception statistics update."""
+        # Update UI with statistics if needed
+        pass
+
     def _update_status(self):
         """Update status information periodically."""
         if self.is_running and self.session_start_time is not None:
@@ -569,7 +642,13 @@ class MainWindow(QMainWindow):
 
             self._stop_system()
 
-        # Cleanup
+        # Cleanup perception processor
+        if self.perception_processor is not None:
+            if self.perception_processor.isRunning():
+                self.perception_processor.stop()
+                self.perception_processor.wait()
+
+        # Cleanup camera manager
         self.camera_manager.cleanup()
         event.accept()
         logger.info("Application closed")
