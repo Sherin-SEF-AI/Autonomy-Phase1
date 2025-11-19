@@ -1,6 +1,20 @@
 # Autonomous Vehicle Perception System
 
-A professional-grade, multi-camera perception system for autonomous vehicle development. This comprehensive platform provides real-time camera capture, object detection, lane tracking, sensor fusion, and safety warnings.
+## 🎯 Version 1.1.0 - Advanced ADAS Features Release
+
+A **professional-grade, production-ready** multi-camera ADAS platform for autonomous vehicle development. This comprehensive system provides real-time perception, safety monitoring, scene understanding, recording, and analytics.
+
+### 🆕 **NEW in v1.1.0** - 8 Advanced ADAS Modules!
+- 📹 **Multi-Camera DVR** with event-triggered recording
+- 🚦 **Traffic Light Detection** (Red, Yellow, Green)
+- 🌊 **Monocular Depth Estimation** (MiDaS/DPT support)
+- 🎨 **Semantic Segmentation** (19-class Cityscapes)
+- 🌤️ **Scene Recognition** (Weather, Road Type, Time, Lighting)
+- 🔍 **Object Re-Identification** across cameras and occlusions
+- 🛡️ **Real-time Safety Scoring** (0-100 with 5 levels)
+- 📊 **Trip Analytics & Reporting** with JSON export
+
+**Total: 4,900+ lines of production code | Full documentation | Working examples | Automated tests**
 
 ## 🚗 Features
 
@@ -125,6 +139,153 @@ A professional-grade, multi-camera perception system for autonomous vehicle deve
   - Code quality improvements and consistency
   - Documentation completeness across all modules
   - Production-ready deployment status
+
+### 🎯 v1.0.2: Advanced Perception Intelligence ✅ (COMPLETED)
+
+#### 🎯 Trajectory Prediction
+- **File**: `perception/trajectory_prediction.py`
+- Motion model-based trajectory prediction (Constant Velocity, Constant Acceleration)
+- Polynomial trajectory fitting (2nd and 3rd degree)
+- Path prediction visualization with confidence bounds
+- Time-to-collision (TTC) calculation
+- Collision point estimation
+- Multi-step ahead prediction (configurable horizon)
+
+#### 🤖 Behavior Classification
+- **File**: `perception/behavior_classification.py`
+- Real-time behavior recognition for tracked objects
+- Behaviors: Normal, Aggressive, Erratic, Stopped, Lane Change, U-Turn, Pedestrian Crossing
+- Temporal behavior analysis with history tracking
+- Rule-based classification using velocity, acceleration, heading change
+- Behavior confidence scoring
+- Integration with tracking system
+
+#### 🧠 Scene Understanding
+- **File**: `perception/scene_understanding.py`
+- High-level scene analysis and risk assessment
+- Traffic density classification (Light, Moderate, Heavy, Congested)
+- Danger level assessment (Safe, Caution, Warning, Danger)
+- Vulnerable road user detection (pedestrians, cyclists)
+- Complex scene classification (Intersection, Highway, Parking, Residential)
+- Multi-camera scene fusion
+- Real-time scene context for decision making
+
+### 🚀 v1.1.0: Advanced ADAS Features ✅ (COMPLETED)
+
+#### 📹 Multi-Camera Recording System
+- **File**: `recording/video_recorder.py` (550 lines)
+- Synchronized multi-camera recording with H.264 encoding
+- Circular buffer for continuous recording (last N minutes in memory)
+- Event-triggered clip saving (collision warnings, hard braking, etc.)
+- Configurable pre/post-event buffers (10s before + 10s after)
+- Automatic metadata logging (detections, tracking, warnings)
+- Background event processing thread
+- Session-based recording with unique IDs
+- Storage management with auto-cleanup
+
+#### 🚦 Traffic Light Detection
+- **File**: `perception/traffic_light_detection.py` (380 lines)
+- HSV color-based detection for Red, Yellow, Green states
+- Confidence scoring for each detection
+- Red light violation checks
+- ROI-based detection (focuses on upper image region)
+- Morphological noise filtering
+- Detection statistics tracking
+
+#### 🌊 Monocular Depth Estimation
+- **File**: `perception/depth_estimation.py` (470 lines)
+- MiDaS (Small, V2.1) and DPT Hybrid model support
+- Simple fallback mode (no ML dependencies required)
+- GPU acceleration when available
+- Depth-at-point queries for specific coordinates
+- Depth statistics for bounding boxes (min, max, mean, median)
+- Colored depth visualization (10+ colormaps)
+- Depth overlay on original images
+- Distance estimation with calibration support
+
+#### 🎨 Semantic Segmentation
+- **File**: `perception/semantic_segmentation.py` (480 lines)
+- DeepLabV3 and FCN model support
+- 19-class Cityscapes segmentation (road, sidewalk, vehicle, person, sky, etc.)
+- Simple fallback mode (no ML required)
+- Colored mask visualization
+- Drivable area extraction
+- Class percentage calculation
+- Obstacle-on-road detection
+- GPU acceleration support
+
+#### 🌤️ Scene Recognition
+- **File**: `perception/scene_recognition.py` (510 lines)
+- **Weather Classification**: Sunny, Cloudy, Rainy, Foggy, Snowy
+- **Road Type Detection**: Highway, Urban, Residential, Rural, Parking Lot
+- **Time of Day**: Day, Night, Dusk, Dawn
+- **Lighting Conditions**: Bright, Normal, Dim, Dark
+- Visibility score calculation (0-1)
+- Temporal smoothing for stable classifications
+- Feature extraction (brightness, contrast, saturation, edge density)
+- Poor visibility detection and caution assessment
+
+#### 🔍 Object Re-Identification
+- **File**: `perception/object_reidentification.py` (520 lines)
+- Appearance-based matching using color histograms
+- Cross-camera tracking with global track IDs
+- Occlusion handling (tracks up to 5s after disappearing)
+- Re-identification after occlusion
+- Similarity scoring with configurable threshold
+- Appearance history management
+- Support for deep learning features (placeholder)
+
+#### 🛡️ Real-time Safety Scoring
+- **File**: `safety/safety_scorer.py` (530 lines)
+- Overall safety score (0-100) with 5 levels: Excellent, Good, Fair, Poor, Critical
+- **Component Scores** (weighted):
+  - Collision avoidance (35%)
+  - Lane keeping (20%)
+  - Following distance (20%)
+  - Speed appropriateness (15%)
+  - Environmental awareness (10%)
+- Event tracking: near misses, hard braking, lane departures, dangerous maneuvers
+- 2-second rule enforcement for following distance
+- Weather-adjusted speed recommendations
+- Traffic density awareness
+- Score history and trend analysis (improving/stable/worsening)
+
+#### 📊 Trip Analytics & Reporting
+- **File**: `analytics/trip_analyzer.py` (450 lines)
+- Comprehensive trip statistics
+- Detection counting by class
+- Unique object tracking across entire trip
+- Scene type distribution (% time in each scene)
+- Weather condition distribution
+- Safety score averaging and trending
+- Performance metrics (FPS, processing time)
+- JSON report generation
+- Multi-trip summary reports
+- Top detected classes analysis
+
+#### 📚 Integration & Documentation
+- **Complete Integration Example**: `examples/advanced_features_demo.py` (380 lines)
+  - Working example using ALL 8 features
+  - Frame processing pipeline
+  - Trip lifecycle management
+  - Visualization creation
+  - Runnable demo
+- **Comprehensive Documentation**: `docs/ADVANCED_FEATURES.md` (500+ lines)
+  - Quick start for each module
+  - Detailed usage examples
+  - Integration guide
+  - Performance benchmarks
+  - Troubleshooting section
+- **Automated Tests**: `tests/test_advanced_features.py`
+  - Unit tests for all 8 modules
+  - Coverage for key functionality
+  - Integration test examples
+- **ADAS Dashboard UI**: `ui/adas_dashboard.py`
+  - Safety score visualization
+  - Scene context display
+  - Traffic light indicators
+  - Recording status and controls
+  - Integrated PyQt6 widget
 
 ## 📋 System Requirements
 
@@ -376,16 +537,29 @@ Logs are saved to `data/logs/` with timestamps. Log levels:
   - [x] Sensor fusion
   - [x] Bird's eye view
   - [x] Minimap widget
-- [ ] Phase 4: Advanced Features
-  - [ ] Recording & playback
-  - [ ] Calibration tools
-  - [ ] Safety warnings
-  - [ ] Telemetry dashboard
-- [ ] Phase 5: Professional Polish
-  - [ ] Data export
-  - [ ] Performance optimization
-  - [ ] Documentation
-  - [ ] Testing
+- [x] Phase 4: Advanced Features (COMPLETE)
+  - [x] Recording & playback
+  - [x] Calibration tools
+  - [x] Safety warnings
+  - [x] Telemetry dashboard
+- [x] Phase 5: Professional Polish (COMPLETE)
+  - [x] Data export
+  - [x] Performance optimization
+  - [x] Documentation
+  - [x] Testing
+- [x] v1.0.2: Advanced Perception Intelligence (COMPLETE)
+  - [x] Trajectory prediction
+  - [x] Behavior classification
+  - [x] Scene understanding
+- [x] v1.1.0: Advanced ADAS Features (COMPLETE)
+  - [x] Multi-camera DVR recording
+  - [x] Traffic light detection
+  - [x] Monocular depth estimation
+  - [x] Semantic segmentation
+  - [x] Scene recognition
+  - [x] Object re-identification
+  - [x] Real-time safety scoring
+  - [x] Trip analytics & reporting
 
 ## 📄 License
 
