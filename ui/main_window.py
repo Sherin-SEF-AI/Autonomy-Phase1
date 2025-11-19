@@ -126,7 +126,6 @@ class MainWindow(QMainWindow):
         # System state
         self.is_running = False
         self.session_start_time = None
-        self.use_simulated_data = not CAMERA_AVAILABLE  # Sim if no cameras
 
         # Module states
         self.perception_enabled = True
@@ -166,7 +165,7 @@ class MainWindow(QMainWindow):
         # Frame timer starts when system starts
 
         logger.info("Production AV System initialized")
-        self.system_log.append(f"[INFO] System initialized - Mode: {'Simulated' if self.use_simulated_data else 'Real Hardware'}")
+        self.system_log.append("[INFO] System initialized - Real Hardware Mode")
 
     def _setup_ui(self):
         """Setup the main user interface"""
@@ -205,11 +204,6 @@ class MainWindow(QMainWindow):
         layout.addWidget(title_label)
 
         layout.addStretch()
-
-        # Mode indicator
-        mode_label = QLabel(f"Mode: {'Simulation' if self.use_simulated_data else 'Real Hardware'}")
-        mode_label.setStyleSheet(f"color: {'orange' if self.use_simulated_data else 'green'}; font-size: 12px;")
-        layout.addWidget(mode_label)
 
         # Version info
         version_label = QLabel("v1.3.0")
@@ -508,8 +502,8 @@ class MainWindow(QMainWindow):
             self.system_log.append("[INFO] Starting perception system...")
 
             # Initialize camera manager
-            if CAMERA_AVAILABLE and not self.use_simulated_data:
-                self.system_log.append("[INFO] Initializing camera system...")
+            if CAMERA_AVAILABLE:
+                self.system_log.append("[INFO] Initializing real camera system...")
                 self.camera_manager = CameraManager(enable_synchronization=True)
 
                 # Configure cameras (using default config)
@@ -530,10 +524,9 @@ class MainWindow(QMainWindow):
                 # Start cameras
                 self.camera_manager.start_all_cameras()
                 self.module_status_labels["Camera System"].setStyleSheet("color: green; font-size: 18px;")
-                self.system_log.append("[INFO] Camera system started")
+                self.system_log.append("[INFO] Real camera system started successfully")
             else:
-                self.system_log.append("[INFO] Using simulated camera data")
-                self.module_status_labels["Camera System"].setStyleSheet("color: orange; font-size: 18px;")
+                raise RuntimeError("Camera manager not available - cannot start production system")
 
             # Initialize perception if available
             if PERCEPTION_AVAILABLE:
@@ -657,9 +650,9 @@ class MainWindow(QMainWindow):
         Handle incoming camera frame from signal
         Called by camera_manager.frame_received signal
         """
-        if frame_data and frame_data.frame is not None:
+        if frame_data and frame_data.image is not None:
             # Store the latest frame for this camera
-            self.latest_frames[frame_data.camera_id] = frame_data.frame
+            self.latest_frames[frame_data.camera_id] = frame_data.image
 
     def _update_frames(self):
         """
@@ -671,7 +664,7 @@ class MainWindow(QMainWindow):
 
         try:
             if self.camera_manager and self.latest_frames:
-                # Update displays with stored frames
+                # Update displays with stored frames from real cameras
                 for camera_id, frame in self.latest_frames.items():
                     if frame is not None:
                         # Map camera ID to display name
@@ -684,25 +677,6 @@ class MainWindow(QMainWindow):
                 # Update statistics
                 if len(self.latest_frames) > 0:
                     self.stats['frames_processed'] += 1
-
-            else:
-                # Simulated mode - generate test pattern
-                for name, display in self.camera_displays.items():
-                    # Create simple test pattern
-                    test_frame = np.zeros((480, 640, 3), dtype=np.uint8)
-                    test_frame[:] = (50, 50, 50)  # Dark gray
-
-                    # Add text
-                    cv2.putText(test_frame, f"{name} Camera", (200, 200),
-                                cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-                    cv2.putText(test_frame, "SIMULATED MODE", (180, 250),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
-                    cv2.putText(test_frame, f"Frame: {self.stats['frames_processed']}", (220, 300),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 1)
-
-                    display.update_frame(test_frame)
-
-                self.stats['frames_processed'] += 1
 
         except Exception as e:
             logger.error(f"Frame update error: {e}")
@@ -737,7 +711,7 @@ Controls Sent: {self.stats['controls_sent']}
 V2X Messages: {self.stats['v2x_messages']}
 
 Status: ACTIVE
-Mode: {'Simulation' if self.use_simulated_data else 'Real Hardware'}
+Mode: Real Hardware
 """
             self.stats_text.setPlainText(stats_text)
 
@@ -747,10 +721,10 @@ Mode: {'Simulation' if self.use_simulated_data else 'Real Hardware'}
             self,
             "About AV Perception System",
             "<h3>Autonomous Vehicle Perception System v1.3.0</h3>"
-            "<p><b>PRODUCTION SYSTEM</b></p>"
+            "<p><b>PRODUCTION SYSTEM - Real Hardware Only</b></p>"
             "<p>A comprehensive autonomous vehicle development platform with:</p>"
             "<ul>"
-            "<li>Real camera integration (or simulation mode)</li>"
+            "<li>Real-time camera integration</li>"
             "<li>Live perception processing</li>"
             "<li>Planning and control systems</li>"
             "<li>V2X communication</li>"
