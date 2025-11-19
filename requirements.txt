@@ -1,19 +1,19 @@
 # Core GUI Framework
-PyQt6==6.6.1
-PyQt6-Qt6==6.6.1
+PyQt6>=6.6.1
+PyQt6-Qt6>=6.6.1
 
 # Computer Vision
-opencv-python==4.8.1.78
-opencv-contrib-python==4.8.1.78
+opencv-python>=4.8.1.78
+opencv-contrib-python>=4.8.1.78
 
 # Deep Learning - Object Detection
-ultralytics==8.1.0
-torch==2.1.2
-torchvision==0.16.2
+ultralytics>=8.1.0
+torch>=2.2.0
+torchvision>=0.17.0
 
 # Numerical Computing
-numpy==1.24.3
-scipy==1.11.4  # For spatial distance calculations in tracking
+numpy>=1.24.3
+scipy>=1.11.4  # For spatial distance calculations in tracking
 
 # Plotting and Visualization
 pyqtgraph==0.13.3
