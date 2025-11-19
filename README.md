@@ -6,37 +6,39 @@ A **professional-grade, production-ready** multi-camera ADAS platform for autono
 
 ---
 
-## 🌟 **INTEGRATED GUI APPLICATION - All Features in One Interface!**
+## 🌟 **PRODUCTION APPLICATION - Real-World Deployment Ready!**
 
-### Quick Start - Integrated System
+### Quick Start - Launch Application
 ```bash
-# Launch the integrated application (recommended)
-./launch_integrated_system.sh
-
-# Or directly with Python
-python3 integrated_av_system.py
+# Launch the production application (single command)
+python3 main.py
 ```
 
-The **Integrated Autonomous Vehicle System** (`integrated_av_system.py`) provides a comprehensive GUI that unifies ALL features from v1.0-v1.3 into a single, professional application with:
+The **Autonomous Vehicle Perception System** is a production-ready application that integrates ALL features from v1.0-v1.3 for real-world autonomous vehicle deployment:
 
-#### 7 Specialized Tabs:
-1. **📹 Perception & Cameras** - Multi-camera feeds, object detection, tracking, sensor fusion
-2. **🛡️ Advanced ADAS** - Traffic signs, driver monitoring, 3D detection, collision warning, safety scoring
-3. **🗺️ Planning & Navigation** - Path planning, motion planning, route planning, parking assist
-4. **🎮 Motion Control** - PID/Stanley/Pure Pursuit controllers, throttle/brake/steering control
-5. **📡 V2X Communication** - DSRC/C-V2X, BSM/SPaT/MAP messages, cooperative awareness
-6. **🧪 Testing & Validation** - Automated scenario testing, performance metrics, pass/fail criteria
-7. **📊 System Monitor** - Real-time stats, module status, resource usage, system logs
+#### Core Capabilities:
+- **📹 Multi-Camera Perception** - 4-camera system with real-time processing (30+ FPS)
+- **🧠 Object Detection & Tracking** - YOLOv8-based detection with multi-object tracking
+- **🛣️ Lane Detection & Following** - Real-time lane detection with departure warnings
+- **🚦 Traffic Light & Sign Recognition** - 40+ sign types, traffic signal states
+- **👁️ Driver Monitoring** - Drowsiness and distraction detection
+- **📦 3D Object Detection** - Full 6-DOF pose estimation
+- **🗺️ Path & Route Planning** - Multi-algorithm planning (A*, RRT, Frenet)
+- **🚗 Motion Planning** - Kinematic/dynamic bicycle models
+- **🎮 Vehicle Control** - PID, Stanley, Pure Pursuit controllers
+- **📡 V2X Communication** - DSRC/C-V2X for connected vehicles
+- **⚠️ Collision Warning** - 5-second predictive collision detection
+- **🅿️ Parking Assist** - Automated parking with 4 modes
+- **🛡️ Safety Scoring** - Real-time safety assessment (0-100 scale)
 
-#### Key Benefits:
-- ✅ **Unified Interface**: All 16,500+ lines of code accessible from one application
-- ✅ **Modular Design**: Enable/disable features as needed
-- ✅ **Real-time Monitoring**: Comprehensive system status and diagnostics
-- ✅ **Professional UI**: Dark theme, tabbed interface, master controls
-- ✅ **Easy Configuration**: Checkboxes and dropdowns for all settings
-- ✅ **Comprehensive Testing**: Built-in scenario testing framework
-
-**📖 See `docs/INTEGRATED_SYSTEM_GUIDE.md` for complete user guide**
+#### Production Features:
+- ✅ **Real-Time Processing**: 30+ FPS multi-camera perception
+- ✅ **Professional UI**: Dark theme, 2x2 camera grid, live statistics
+- ✅ **Thread-Safe**: Each camera in separate thread for maximum performance
+- ✅ **Robust Error Handling**: Automatic reconnection, graceful failures
+- ✅ **Modular Architecture**: Enable/disable features as needed
+- ✅ **Production Logging**: Comprehensive system logs for debugging
+- ✅ **Hardware Ready**: Supports USB cameras, optimized for real deployment
 
 ---
 

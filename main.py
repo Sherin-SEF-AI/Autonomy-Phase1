@@ -1,9 +1,20 @@
 #!/usr/bin/env python3
 """
-Main entry point for the Autonomous Vehicle Perception System.
+Autonomous Vehicle Perception System - Production Application
 
-This application provides a professional-grade multi-camera perception platform
-for autonomous vehicle development.
+Main entry point for the integrated autonomous vehicle system.
+Combines all features from v1.0 through v1.3 into a production-ready
+real-world application.
+
+Features:
+- Multi-camera perception and tracking (v1.0)
+- Advanced ADAS features (v1.1)
+- Complex planning and navigation (v1.2)
+- Motion planning, control, and V2X (v1.3)
+
+Version: 1.3.0
+Author: Autonomous Driving System
+License: [Specify License]
 """
 
 import sys
@@ -26,15 +37,18 @@ def signal_handler(sig, frame):
 
 def main():
     """
-    Main application entry point.
+    Main application entry point for production deployment.
+
+    Initializes and launches the integrated autonomous vehicle system
+    with full perception, planning, control, and communication capabilities.
     """
     # Setup logging
     log_dir = Path(__file__).parent / "data" / "logs"
     logger = get_logger("AutonomousPerception", log_dir=log_dir)
 
     logger.info("=" * 80)
-    logger.info("AUTONOMOUS VEHICLE PERCEPTION SYSTEM")
-    logger.info("Version 1.1.0 - Advanced Features Release")
+    logger.info("AUTONOMOUS VEHICLE PERCEPTION SYSTEM - PRODUCTION")
+    logger.info("Version 1.3.0 - Advanced Planning & Connected Systems")
     logger.info("=" * 80)
 
     # Run system check
