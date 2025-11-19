@@ -148,6 +148,9 @@ class IntegratedAVSystem(QMainWindow):
         # Camera displays
         self.camera_displays: Dict[str, CameraDisplayWidget] = {}
 
+        # Store latest frames from cameras (for signal-based updates)
+        self.latest_frames: Dict[int, np.ndarray] = {}
+
         # Setup UI
         self._setup_ui()
         self._create_menus()
@@ -522,6 +525,9 @@ class IntegratedAVSystem(QMainWindow):
                     )
                     self.camera_manager.add_camera(config)
 
+                # Connect camera signals
+                self.camera_manager.frame_received.connect(self._on_camera_frame)
+
                 # Start cameras
                 self.camera_manager.start_all_cameras()
                 self.module_status_labels["Camera System"].setStyleSheet("color: green; font-size: 18px;")
@@ -586,8 +592,17 @@ class IntegratedAVSystem(QMainWindow):
 
             # Stop cameras
             if self.camera_manager:
+                # Disconnect signals
+                try:
+                    self.camera_manager.frame_received.disconnect(self._on_camera_frame)
+                except:
+                    pass  # Already disconnected
+
                 self.camera_manager.stop_all_cameras()
                 self.system_log.append("[INFO] Cameras stopped")
+
+            # Clear stored frames
+            self.latest_frames.clear()
 
             # Update module status
             for label in self.module_status_labels.values():
@@ -638,6 +653,15 @@ class IntegratedAVSystem(QMainWindow):
 
         logger.critical("EMERGENCY STOP activated")
 
+    def _on_camera_frame(self, frame_data: CameraFrame):
+        """
+        Handle incoming camera frame from signal
+        Called by camera_manager.frame_received signal
+        """
+        if frame_data and frame_data.frame is not None:
+            # Store the latest frame for this camera
+            self.latest_frames[frame_data.camera_id] = frame_data.frame
+
     def _update_frames(self):
         """
         Update camera frames - ACTUALLY PROCESSES REAL FRAMES
@@ -647,22 +671,19 @@ class IntegratedAVSystem(QMainWindow):
             return
 
         try:
-            if self.camera_manager:
-                # Get frames from camera manager
-                sync_data = self.camera_manager.get_synchronized_frames()
+            if self.camera_manager and self.latest_frames:
+                # Update displays with stored frames
+                for camera_id, frame in self.latest_frames.items():
+                    if frame is not None:
+                        # Map camera ID to display name
+                        camera_names = ["Dashboard", "Front", "Left", "Right"]
+                        if 0 <= camera_id < len(camera_names):
+                            display_name = camera_names[camera_id]
+                            if display_name in self.camera_displays:
+                                self.camera_displays[display_name].update_frame(frame)
 
-                if sync_data and sync_data.frames:
-                    # Update displays with real frames
-                    for camera_id, frame_data in sync_data.frames.items():
-                        if frame_data and frame_data.frame is not None:
-                            # Map camera ID to display name
-                            camera_names = ["Dashboard", "Front", "Left", "Right"]
-                            if 0 <= camera_id < len(camera_names):
-                                display_name = camera_names[camera_id]
-                                if display_name in self.camera_displays:
-                                    self.camera_displays[display_name].update_frame(frame_data.frame)
-
-                    # Update statistics
+                # Update statistics
+                if len(self.latest_frames) > 0:
                     self.stats['frames_processed'] += 1
 
             else:
