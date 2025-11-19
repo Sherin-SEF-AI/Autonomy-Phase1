@@ -1,10 +1,21 @@
 # Autonomous Vehicle Perception System
 
-## 🎯 Version 1.1.0 - Advanced ADAS Features Release
+## 🎯 Version 1.2.0 - Complex Features & Advanced Planning
 
-A **professional-grade, production-ready** multi-camera ADAS platform for autonomous vehicle development. This comprehensive system provides real-time perception, safety monitoring, scene understanding, recording, and analytics.
+A **professional-grade, production-ready** multi-camera ADAS platform for autonomous vehicle development. This comprehensive system provides real-time perception, safety monitoring, scene understanding, planning, recording, and analytics.
 
-### 🆕 **NEW in v1.1.0** - 8 Advanced ADAS Modules!
+### 🆕 **NEW in v1.2.0** - 7 Advanced Complex Modules!
+- 🗺️ **Path Planning & Navigation** - Multi-algorithm planning with obstacle avoidance
+- 🚦 **Traffic Sign Recognition** - 40+ sign types with tracking
+- 👁️ **Driver Monitoring System** - Drowsiness, distraction, attention scoring
+- 📦 **3D Object Detection** - Full 3D bounding boxes with pose estimation
+- 🅿️ **Parking Assist** - Auto parking with trajectory visualization
+- ⚠️ **Predictive Collision Warning** - 5s ahead prediction with 9 scenarios
+- 🎥 **Visual Odometry** - Camera-based ego-motion and trajectory
+
+**NEW: 4,850+ lines of complex features | Total system: 12,000+ lines**
+
+### ✨ **v1.1.0 Features** - 8 Advanced ADAS Modules
 - 📹 **Multi-Camera DVR** with event-triggered recording
 - 🚦 **Traffic Light Detection** (Red, Yellow, Green)
 - 🌊 **Monocular Depth Estimation** (MiDaS/DPT support)
@@ -13,8 +24,6 @@ A **professional-grade, production-ready** multi-camera ADAS platform for autono
 - 🔍 **Object Re-Identification** across cameras and occlusions
 - 🛡️ **Real-time Safety Scoring** (0-100 with 5 levels)
 - 📊 **Trip Analytics & Reporting** with JSON export
-
-**Total: 4,900+ lines of production code | Full documentation | Working examples | Automated tests**
 
 ## 🚗 Features
 
@@ -169,6 +178,113 @@ A **professional-grade, production-ready** multi-camera ADAS platform for autono
 - Complex scene classification (Intersection, Highway, Parking, Residential)
 - Multi-camera scene fusion
 - Real-time scene context for decision making
+
+### 🚀 v1.2.0: Complex Features & Advanced Planning ✅ (COMPLETED)
+
+#### 🗺️ Path Planning & Navigation
+- **File**: `planning/path_planner.py` (650+ lines)
+- Multiple planning algorithms: Polynomial, Quintic, A*, RRT, Frenet
+- Lane keeping, lane change, and overtake trajectory planning
+- Emergency stop maneuver generation
+- Obstacle avoidance with configurable safety margins
+- Speed profile optimization for passenger comfort
+- Path smoothing with iterative averaging
+- Dynamic replanning on deviation detection
+- Waypoint-based path representation with heading and curvature
+- Real-time path visualization overlay
+
+#### 🚦 Traffic Sign Recognition (TSR)
+- **File**: `perception/traffic_sign_recognition.py` (750+ lines)
+- 40+ traffic sign types across multiple categories
+- Speed limit signs (20, 30, 40, 50, 60, 70, 80, 90, 100, 120 km/h)
+- Regulatory signs: Stop, Yield, No Entry, No Parking, No Overtaking
+- Warning signs: Curves, Crossings, Road Work, Pedestrians, Children, Slippery Road
+- Informational signs: Parking, Highway, Roundabout, One Way
+- Color-based detection using HSV segmentation (red, blue, yellow)
+- Shape-based classification (circle, triangle, octagon, square, rectangle)
+- Multi-frame tracking for temporal stability
+- Distance estimation using camera calibration
+- Importance-based prioritization (critical signs ranked higher)
+- Temporal smoothing to reduce detection jitter
+- OCR capability for speed limit value extraction
+
+#### 👁️ Driver Monitoring System (DMS)
+- **File**: `safety/driver_monitoring.py` (650+ lines)
+- Real-time face detection using Haar cascades
+- Eye state detection with Eye Aspect Ratio (EAR) calculation
+- Drowsiness detection via prolonged eye closure (2-3s thresholds)
+- Head pose estimation (pitch, yaw, roll angles)
+- Gaze direction tracking (forward, left, right, up, down)
+- Distraction detection via head angle and gaze departure
+- Yawning detection using mouth aspect ratio
+- Phone usage and smoking detection support
+- Attention level scoring (0-100 scale)
+- Multi-level alerting system (Low, Medium, High, Critical)
+- Driver state classification (Attentive, Drowsy, Distracted, Eyes Closed, No Driver)
+- Real-time visualization dashboard with color-coded indicators
+- Statistics tracking (drowsy events, distraction events, avg attention)
+
+#### 📦 3D Object Detection
+- **File**: `perception/object_detection_3d.py` (700+ lines)
+- 3D bounding box generation from 2D detections + depth maps
+- Full 6-DOF object pose (3D position + 3D rotation)
+- Standard object dimension templates (car, truck, bus, person, bicycle)
+- Geometric depth estimation using pinhole camera model
+- Depth map integration for accurate distance measurement
+- 3D orientation estimation (8 cardinal directions)
+- Bird's eye view (BEV) projection of 3D objects
+- 3D IoU (Intersection over Union) calculation
+- 8-corner 3D bounding box representation
+- Rotation matrix generation from Euler angles
+- 3D-to-2D projection for visualization
+- Multi-view 3D box rendering on camera images
+
+#### 🅿️ Parking Assist
+- **File**: `planning/parking_assist.py` (700+ lines)
+- Automatic parking space detection from gaps between vehicles
+- Multiple parking modes: Parallel, Perpendicular, Angled (45°, 60°)
+- Parking spot quality assessment (Excellent, Good, Acceptable, Difficult, Unsuitable)
+- Multi-point turn trajectory planning (up to 5 maneuvers)
+- Collision-free path generation with obstacle checking
+- Steering angle calculation for each waypoint
+- Forward/Reverse gear sequencing
+- Classic 3-point parallel parking maneuver
+- Turn-based perpendicular parking
+- Real-time clearance monitoring (minimum 0.3m safety margin)
+- Trajectory visualization with steering indicators
+- Spot size adequacy checking against vehicle dimensions
+
+#### ⚠️ Predictive Collision Warning (PCW)
+- **File**: `safety/predictive_collision_warning.py` (750+ lines)
+- Multi-object trajectory prediction (5 seconds ahead, 10 steps)
+- Physics-based motion prediction using kinematic equations
+- Time-to-collision (TTC) estimation for all objects
+- Collision probability calculation (0-100%)
+- 9 collision scenario types: Frontal, Rear, Side Left/Right, Pedestrian, Cyclist, Intersection, Lane Change, Backing
+- 6 risk levels: None, Low, Medium, High, Critical, Imminent
+- Critical zone monitoring (front, rear, left, right zones)
+- Vulnerable road user prioritization (2-3x priority for pedestrians/cyclists)
+- Recommended action generation: Monitor, Prepare Brake, Brake Gently, Brake Hard, Emergency Brake, Steer Left/Right, Stop
+- Multi-level warning message generation
+- Collision point prediction in 3D space
+- RANSAC-based outlier rejection
+
+#### 🎥 Visual Odometry
+- **File**: `perception/visual_odometry.py` (650+ lines)
+- Real-time camera ego-motion estimation (position + orientation)
+- Multiple feature detectors: ORB, SIFT, FAST, AKAZE
+- Feature matching with Lowe's ratio test (0.7 threshold)
+- Essential matrix estimation using RANSAC
+- Camera pose recovery (R|t decomposition)
+- 6-DOF trajectory reconstruction
+- Scale estimation from known object sizes (addresses monocular scale ambiguity)
+- Speed estimation from trajectory analysis
+- 2D and 3D trajectory export
+- Bird's eye view trajectory visualization with color gradient
+- Feature visualization overlay
+- Drift monitoring and statistics
+- Rotation matrix to Euler angle conversion
+- Distance traveled tracking
 
 ### 🚀 v1.1.0: Advanced ADAS Features ✅ (COMPLETED)
 
@@ -560,6 +676,14 @@ Logs are saved to `data/logs/` with timestamps. Log levels:
   - [x] Object re-identification
   - [x] Real-time safety scoring
   - [x] Trip analytics & reporting
+- [x] v1.2.0: Complex Features & Advanced Planning (COMPLETE)
+  - [x] Path planning & navigation (multi-algorithm)
+  - [x] Traffic sign recognition (40+ types)
+  - [x] Driver monitoring system (DMS)
+  - [x] 3D object detection
+  - [x] Parking assist system
+  - [x] Predictive collision warning (PCW)
+  - [x] Visual odometry
 
 ## 📄 License
 

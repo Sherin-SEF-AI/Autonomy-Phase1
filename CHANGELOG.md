@@ -4,6 +4,121 @@ All notable changes to the Autonomous Vehicle Perception System will be document
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.2.0] - 2025-01-19 - Complex Features & Advanced Planning
+
+### Added
+
+#### 🗺️ Path Planning & Navigation
+- **Path Planner** (`planning/path_planner.py` - 650+ lines)
+  - Multiple planning algorithms: Polynomial, Quintic, A*, RRT, Frenet
+  - Lane keeping, lane change, and overtake maneuvers
+  - Emergency stop trajectory planning
+  - Obstacle avoidance with safety margins
+  - Speed profile optimization for comfort
+  - Path smoothing and validation
+  - Dynamic replanning when deviations occur
+  - Waypoint-based trajectory representation
+  - Real-time path visualization
+
+#### 🚦 Traffic Sign Recognition (TSR)
+- **Traffic Sign Recognizer** (`perception/traffic_sign_recognition.py` - 750+ lines)
+  - 40+ traffic sign types supported
+  - Speed limits (20-120 km/h) with OCR capability
+  - Regulatory signs: Stop, Yield, No Entry, No Parking, etc.
+  - Warning signs: Curves, Crossings, Road Work, etc.
+  - Informational signs: Parking, Highway, Roundabout, etc.
+  - Color-based and shape-based detection
+  - Multi-frame tracking for stability
+  - Distance estimation to signs
+  - Importance-based sign prioritization
+  - Temporal smoothing to reduce jitter
+
+#### 👁️ Driver Monitoring System (DMS)
+- **Driver Monitor** (`safety/driver_monitoring.py` - 650+ lines)
+  - Real-time face and eye detection
+  - Eye state analysis (open, closed, drowsy)
+  - Head pose estimation (pitch, yaw, roll)
+  - Gaze direction tracking (forward, left, right, down, up)
+  - Drowsiness detection via prolonged eye closure
+  - Distraction detection via head angle and gaze
+  - Yawning detection
+  - Phone usage detection capability
+  - Attention scoring (0-100)
+  - Multi-level alerting (Low, Medium, High, Critical)
+  - Real-time visualization dashboard
+
+#### 📦 3D Object Detection
+- **3D Object Detector** (`perception/object_detection_3d.py` - 700+ lines)
+  - 3D bounding box generation from 2D detections + depth
+  - Full 6-DOF object pose (position + rotation)
+  - Standard object dimension templates
+  - Geometric depth estimation fallback
+  - 3D orientation estimation (8 directions)
+  - Bird's eye view projection
+  - 3D IoU calculation
+  - Corner point computation for 3D boxes
+  - Multi-view 3D visualization
+  - Depth integration from depth estimation module
+
+#### 🅿️ Parking Assist
+- **Parking Assistant** (`planning/parking_assist.py` - 700+ lines)
+  - Automatic parking space detection
+  - Multiple parking modes: Parallel, Perpendicular, Angled (45°, 60°)
+  - Gap-based spot detection between vehicles
+  - Spot quality assessment (Excellent → Unsuitable)
+  - Multi-point turn trajectory planning
+  - Collision-free path generation
+  - Steering angle calculation at each waypoint
+  - Forward/Reverse gear sequencing
+  - Real-time clearance monitoring
+  - Trajectory visualization
+
+#### ⚠️ Predictive Collision Warning (PCW)
+- **Predictive Collision System** (`safety/predictive_collision_warning.py` - 750+ lines)
+  - Multi-object trajectory prediction (5s ahead)
+  - Time-to-collision (TTC) estimation
+  - Collision probability calculation (0-100%)
+  - 9 collision scenario types: Frontal, Rear, Side, Pedestrian, Cyclist, etc.
+  - 6 risk levels: None → Imminent
+  - Critical zone monitoring around vehicle
+  - Vulnerable road user prioritization (pedestrians, cyclists)
+  - Recommended action generation (Monitor → Emergency Brake)
+  - Multi-level warning system
+  - Collision point prediction
+
+#### 🎥 Visual Odometry
+- **Visual Odometry System** (`perception/visual_odometry.py` - 650+ lines)
+  - Real-time camera ego-motion estimation
+  - Multiple feature detectors: ORB, SIFT, FAST, AKAZE
+  - Essential matrix estimation and decomposition
+  - Camera pose recovery (rotation + translation)
+  - Feature matching with ratio test
+  - RANSAC outlier rejection
+  - Trajectory reconstruction and visualization
+  - Scale estimation from known object sizes
+  - Speed estimation from trajectory
+  - 2D/3D trajectory export
+  - Drift monitoring
+
+### Technical Highlights
+
+- **4,850+ lines** of production-ready code across 7 modules
+- Comprehensive dataclass-based architecture
+- Type hints throughout all modules
+- Multi-algorithm support with fallbacks
+- Real-time performance optimized
+- Statistics tracking in all systems
+- Professional visualization capabilities
+- Extensive configuration options
+
+### Integration
+
+All modules designed for seamless integration:
+- Shared data structures (Point3D, Waypoint, etc.)
+- Common coordinate systems
+- Compatible with existing v1.1.0 modules
+- Modular architecture for easy adoption
+
 ## [1.1.0] - 2025-01-18 - Advanced Features Release
 
 ### Added
