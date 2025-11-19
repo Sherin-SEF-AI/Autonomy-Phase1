@@ -1,10 +1,20 @@
 # Autonomous Vehicle Perception System
 
-## 🎯 Version 1.2.0 - Complex Features & Advanced Planning
+## 🎯 Version 1.3.0 - Advanced Planning & Connected Systems
 
-A **professional-grade, production-ready** multi-camera ADAS platform for autonomous vehicle development. This comprehensive system provides real-time perception, safety monitoring, scene understanding, planning, recording, and analytics.
+A **professional-grade, production-ready** multi-camera ADAS platform for autonomous vehicle development. This comprehensive system provides real-time perception, safety monitoring, scene understanding, planning, control, V2X communication, and comprehensive testing.
 
-### 🆕 **NEW in v1.2.0** - 7 Advanced Complex Modules!
+### 🚀 **NEW in v1.3.0** - 6 Production-Grade Advanced Modules!
+- 🚗 **Motion Planning with Vehicle Dynamics** - Kinematic/dynamic bicycle models, lattice planning
+- 📡 **Advanced Sensor Fusion Framework** - EKF-based multi-sensor fusion
+- 🗺️ **Lane Graph & Global Route Planning** - A* pathfinding with turn-by-turn navigation
+- 📡 **V2X Communication** - DSRC/C-V2X with cooperative awareness
+- 🎮 **Vehicle Control Interface** - PID/Stanley/Pure Pursuit controllers
+- 🧪 **Scenario Testing Framework** - Automated testing with reports
+
+**NEW: 4,550+ lines of advanced control & planning | Total system: 16,500+ lines**
+
+### ✨ **v1.2.0 Features** - 7 Advanced Complex Modules!
 - 🗺️ **Path Planning & Navigation** - Multi-algorithm planning with obstacle avoidance
 - 🚦 **Traffic Sign Recognition** - 40+ sign types with tracking
 - 👁️ **Driver Monitoring System** - Drowsiness, distraction, attention scoring
@@ -684,6 +694,13 @@ Logs are saved to `data/logs/` with timestamps. Log levels:
   - [x] Parking assist system
   - [x] Predictive collision warning (PCW)
   - [x] Visual odometry
+- [x] v1.3.0: Advanced Planning & Connected Systems (COMPLETE)
+  - [x] Motion planning with vehicle dynamics
+  - [x] Advanced sensor fusion framework (EKF)
+  - [x] Lane graph & global route planning
+  - [x] V2X communication (DSRC/C-V2X)
+  - [x] Vehicle control interface
+  - [x] Scenario testing framework
 
 ## 📄 License
 

@@ -4,6 +4,112 @@ All notable changes to the Autonomous Vehicle Perception System will be document
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.3.0] - 2025-01-19 - Advanced Planning & Connected Systems
+
+### Added
+
+#### 🚗 Motion Planning with Vehicle Dynamics
+- **Motion Planner** (`planning/motion_planner.py` - 850+ lines)
+  - Kinematic bicycle model for path tracking
+  - Dynamic bicycle model with tire slip
+  - Lattice-based trajectory planning
+  - Quintic polynomial path generation
+  - Velocity profile optimization (forward + backward passes)
+  - Constraint checking: velocity, acceleration, curvature, lateral acceleration
+  - Collision-free trajectory verification
+  - Vehicle state simulation
+  - Multi-trajectory generation and evaluation
+  - Real-time trajectory visualization
+
+#### 📡 Advanced Sensor Fusion Framework
+- **Sensor Fusion System** (`fusion/sensor_fusion_framework.py` - 750+ lines)
+  - Extended Kalman Filter (EKF) implementation
+  - Multi-sensor fusion (Camera, LIDAR, Radar, GPS, IMU)
+  - Data association using Mahalanobis distance
+  - Multi-hypothesis tracking
+  - Track lifecycle management (Tentative → Confirmed → Lost → Deleted)
+  - Covariance intersection for distributed fusion
+  - Gating and outlier rejection
+  - Sensor health monitoring
+  - Process and measurement noise covariance handling
+  - State prediction and update cycles
+
+#### 🗺️ Lane Graph & Global Route Planning
+- **Route Planner** (`planning/route_planner.py` - 750+ lines)
+  - Lane graph construction and representation
+  - A* pathfinding algorithm on lane graph
+  - Dijkstra's algorithm support
+  - Alternative route generation
+  - Route replanning around blockages
+  - Turn-by-turn instruction generation
+  - Lane change advisory
+  - Route cost calculation (distance, time, comfort)
+  - Geographic coordinate handling
+  - Route visualization and export
+
+#### 📡 V2X Communication
+- **V2X Communication System** (`communication/v2x_communication.py` - 750+ lines)
+  - DSRC and C-V2X protocol support
+  - Basic Safety Message (BSM) broadcasting
+  - Signal Phase and Timing (SPaT) reception
+  - MAP data handling
+  - Personal Safety Message (PSM) for pedestrians
+  - Road Side Alert (RSA) processing
+  - Message prioritization and queuing
+  - Security signatures and authentication
+  - Cooperative awareness and collision avoidance
+  - Time-to-collision calculation via V2X
+  - Remote vehicle tracking
+  - Infrastructure node communication
+
+#### 🎮 Vehicle Control Interface
+- **Low-Level Control System** (`control/vehicle_control_interface.py` - 750+ lines)
+  - Longitudinal control (throttle, brake)
+  - Lateral control (steering)
+  - PID controllers for speed and path tracking
+  - Stanley controller for path following
+  - Pure Pursuit controller
+  - Control modes: Manual, Assisted, Autonomous, Emergency Stop
+  - Actuator diagnostics and health monitoring
+  - Command rate limiting and validation
+  - Emergency override capabilities
+  - Vehicle dynamics limits enforcement
+  - Real-time control loop statistics
+
+#### 🧪 Scenario Testing Framework
+- **Automated Test System** (`testing/scenario_testing_framework.py` - 700+ lines)
+  - Predefined test scenarios (highway, urban, parking, emergency)
+  - Custom scenario definition support
+  - Traffic simulation
+  - Edge case testing
+  - Performance metrics collection
+  - Pass/fail criteria evaluation
+  - Test suite management
+  - Text and JSON report generation
+  - Safety metrics: TTC violations, collision detection, min distances
+  - Comfort metrics: max acceleration, jerk, lateral acceleration
+  - Scenario library: Highway Cruise, Emergency Braking, Lane Change, Cut-In
+
+### Technical Highlights
+
+- **4,550+ lines** of production-ready code across 6 modules
+- Advanced control theory implementation (PID, MPC concepts, Stanley)
+- State-of-the-art sensor fusion with EKF
+- Connected vehicle capabilities with V2X
+- Comprehensive testing infrastructure
+- Full vehicle dynamics modeling
+- Graph-based route planning
+- Type hints and dataclass architecture throughout
+- Real-time performance optimized
+
+### Integration
+
+All modules designed for seamless integration:
+- Compatible with existing v1.0-v1.2 modules
+- Shared coordinate systems and data structures
+- Modular architecture for independent adoption
+- Professional testing framework for validation
+
 ## [1.2.0] - 2025-01-19 - Complex Features & Advanced Planning
 
 ### Added
