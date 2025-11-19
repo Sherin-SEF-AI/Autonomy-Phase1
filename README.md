@@ -4,6 +4,42 @@
 
 A **professional-grade, production-ready** multi-camera ADAS platform for autonomous vehicle development. This comprehensive system provides real-time perception, safety monitoring, scene understanding, planning, control, V2X communication, and comprehensive testing.
 
+---
+
+## 🌟 **INTEGRATED GUI APPLICATION - All Features in One Interface!**
+
+### Quick Start - Integrated System
+```bash
+# Launch the integrated application (recommended)
+./launch_integrated_system.sh
+
+# Or directly with Python
+python3 integrated_av_system.py
+```
+
+The **Integrated Autonomous Vehicle System** (`integrated_av_system.py`) provides a comprehensive GUI that unifies ALL features from v1.0-v1.3 into a single, professional application with:
+
+#### 7 Specialized Tabs:
+1. **📹 Perception & Cameras** - Multi-camera feeds, object detection, tracking, sensor fusion
+2. **🛡️ Advanced ADAS** - Traffic signs, driver monitoring, 3D detection, collision warning, safety scoring
+3. **🗺️ Planning & Navigation** - Path planning, motion planning, route planning, parking assist
+4. **🎮 Motion Control** - PID/Stanley/Pure Pursuit controllers, throttle/brake/steering control
+5. **📡 V2X Communication** - DSRC/C-V2X, BSM/SPaT/MAP messages, cooperative awareness
+6. **🧪 Testing & Validation** - Automated scenario testing, performance metrics, pass/fail criteria
+7. **📊 System Monitor** - Real-time stats, module status, resource usage, system logs
+
+#### Key Benefits:
+- ✅ **Unified Interface**: All 16,500+ lines of code accessible from one application
+- ✅ **Modular Design**: Enable/disable features as needed
+- ✅ **Real-time Monitoring**: Comprehensive system status and diagnostics
+- ✅ **Professional UI**: Dark theme, tabbed interface, master controls
+- ✅ **Easy Configuration**: Checkboxes and dropdowns for all settings
+- ✅ **Comprehensive Testing**: Built-in scenario testing framework
+
+**📖 See `docs/INTEGRATED_SYSTEM_GUIDE.md` for complete user guide**
+
+---
+
 ### 🚀 **NEW in v1.3.0** - 6 Production-Grade Advanced Modules!
 - 🚗 **Motion Planning with Vehicle Dynamics** - Kinematic/dynamic bicycle models, lattice planning
 - 📡 **Advanced Sensor Fusion Framework** - EKF-based multi-sensor fusion
